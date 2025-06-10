@@ -3,16 +3,11 @@ import axiosInstance from "./axios-instance";
 import type { APIResponse } from "@/types";
 import type { Assignment } from "@/types";
 
-export type GetAssignment = { assignment: Assignment }
-export type GetAssignments = Assignment[];
+export type GetAssignmentResponse = Assignment;
 export type CreateAssignmentResponse = {};
 
-export async function getAssignment(id: number): APIResponse<GetAssignment> {
-    return apiCall<GetAssignment>(() => axiosInstance.post(`assignments/${id}/`))
-}
-
-export async function getAssignments(classId: number): APIResponse<GetAssignments> {
-    return apiCall<GetAssignments>(() => axiosInstance.post(`assignments/class/${classId}/`))
+export async function getAssignment(id: number, classId: number): APIResponse<GetAssignmentResponse> {
+    return apiCall<GetAssignmentResponse>(() => axiosInstance.get(`assignments/${id}/class/${classId}/`))
 }
 
 export async function createAssignment(formData: FormData): APIResponse<CreateAssignmentResponse> {

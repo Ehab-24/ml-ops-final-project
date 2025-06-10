@@ -2,7 +2,7 @@ import { Card, CardHeader, CardContent, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { format } from "date-fns"
 import { useEffect, useState } from "react"
-import { useParams } from "react-router"
+import { Link, useNavigate, useParams } from "react-router"
 import { getClass } from "@/api/class"
 import { toast } from "sonner"
 import type { ClassDetails } from "@/types"
@@ -14,12 +14,15 @@ export default function ClassDetailPage() {
     const [classDetails, setClassData] = useState<ClassDetails | null>(null)
 
     const { auth } = useAuth()
+    const navigate = useNavigate()
 
     useEffect(() => {
         if (!classId || !Number(classId)) return
         getClass(Number(classId)).then((result) => {
-            if (result.ok)
+            if (result.ok) {
                 setClassData(result.value)
+                console.log(result.value)
+            }
             else
                 toast.error('Unable to load class!')
         })
@@ -46,10 +49,21 @@ export default function ClassDetailPage() {
                 </CardContent>
             </Card>
 
-            <h2 className="text-xl font-semibold">Assignments</h2>
+            <div className="w-full flex justify-between items-center">
+                <h2 className="text-xl font-semibold">Assignments</h2>
+                {auth.role == "teacher" && (
+                    <Button asChild variant="secondary">
+                        <Link to={`/classes/${classId}/assignments/create/`}>Create New</Link>
+                    </Button>
+                )}
+            </div>
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {classDetails.assignments.map(a => (
-                    <Card key={a.id} className="flex flex-col justify-between">
+                    <Card
+                        key={a.id}
+                        className="flex flex-col justify-between cursor-pointer hover:shadow-black/10 shadow-2xl shadow-black/0 transition-all"
+                        onClick={() => navigate(`/classes/${classId}/assignments/${a.id}/`)}
+                    >
                         <CardHeader>
                             <CardTitle className="text-lg">{a.name}</CardTitle>
                             <CardDescription>{format(new Date(a.deadline), "PPP p")}</CardDescription>

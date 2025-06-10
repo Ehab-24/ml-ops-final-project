@@ -30,8 +30,20 @@ class AssignmentListView(generics.ListAPIView):
         if user.role == "teacher":
             return Assignment.objects.filter(classroom__id=classroom, classroom__teacher=user)
         else:
-            # student can see assignments only if member of class
             return Assignment.objects.filter(classroom__id=classroom, classroom__classmembership__student=user)
+
+
+class AssignmentDetailView(generics.RetrieveAPIView):
+    serializer_class = AssignmentSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    lookup_url_kwarg = 'assignment_id'
+
+    def get_queryset(self):
+        user = self.request.user
+        class_id = self.kwargs['class_id']
+        if user.role == "teacher":
+            return Assignment.objects.filter(id=self.kwargs['assignment_id'], classroom__id=class_id, classroom__teacher=user)
+        return Assignment.objects.filter(id=self.kwargs['assignment_id'], classroom__id=class_id, classroom__classmembership__student=user)
 
 # 3. Student uploads submission if deadline not passed
 class SubmitAssignmentView(generics.CreateAPIView):

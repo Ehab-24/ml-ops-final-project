@@ -22,7 +22,8 @@ class AssignmentSerializer(serializers.ModelSerializer):
     def get_solution_file(self, obj):
         user = self.context['request'].user
         if user.role == 'teacher':
-            return obj.solution_file.url if obj.solution_file else None
+            request = self.context['request']
+            return request.build_absolute_uri(obj.solution_file.url) if obj.solution_file else None
         return None
 
     def get_submission_count(self, obj):

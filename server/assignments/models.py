@@ -24,4 +24,3 @@ class Submission(models.Model):
 
     class Meta:
         unique_together = ('assignment', 'student')
-
