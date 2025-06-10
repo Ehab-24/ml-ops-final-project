@@ -1,5 +1,3 @@
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { useEffect, useState } from "react"
@@ -8,12 +6,12 @@ import type { Assignment } from "@/types"
 import { getAssignment } from "@/api/assignments"
 import { toast } from "sonner"
 import { useAuth } from "@/lib/AuthContext"
+import AssignmentSubmissionForm from "../forms/AssignmentSubmissionForm"
 
 
 export default function AssignmentDetailsPage() {
     const { assignmentId, classId } = useParams()
     const [assignment, setAssignment] = useState<Assignment | null>(null);
-    const [files, setFiles] = useState<FileList | null>(null)
 
     const { auth } = useAuth()
 
@@ -25,16 +23,6 @@ export default function AssignmentDetailsPage() {
                 toast('Unable to load assignment!')
         })
     }, [assignmentId]);
-
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setFiles(e.target.files)
-    }
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault()
-        console.log("Submitted files:", files)
-        // TODO: upload logic
-    }
 
     function getFilenameFromUrl(url: string): string {
         return url.split('/').pop() ?? url;
@@ -74,19 +62,9 @@ export default function AssignmentDetailsPage() {
                 </CardContent>
             </Card>
 
-            {auth.role == "student" && (
-                <form onSubmit={handleSubmit} className="space-y-4">
-                    <Label htmlFor="solution">Upload Your Solution</Label>
-                    <Input
-                        id="solution"
-                        type="file"
-                        multiple
-                        onChange={handleFileChange}
-                    />
-                    <Button type="submit" variant="secondary">Submit Solution</Button>
-                </form>
-            )}
+            {assignment.submitted ? (
+                <p className="text-center">Assignment already submitted!</p>
+            ) : auth.role == "student" && <AssignmentSubmissionForm id={assignment.id} classId={Number(classId ?? "-1")} />}
         </div>
     )
 }
-

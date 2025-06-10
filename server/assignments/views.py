@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status, parsers
+from rest_framework import generics, permissions, status, parsers, serializers
 from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -49,20 +49,20 @@ class AssignmentDetailView(generics.RetrieveAPIView):
 class SubmitAssignmentView(generics.CreateAPIView):
     serializer_class = SubmissionCreateSerializer
     permission_classes = [permissions.IsAuthenticated, IsStudent]
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
 
-    def post(self, request, assignment_id):
-        assignment = Assignment.objects.get(id=assignment_id)
+    def perform_create(self, serializer):
+        assignment = get_object_or_404(Assignment, id=self.kwargs['assignment_id'])
         if timezone.now() > assignment.deadline:
-            return Response({'detail': 'Deadline passed'}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Create or update submission
-        submission, created = Submission.objects.update_or_create(
-            assignment=assignment,
-            student=request.user,
-            defaults={'submitted_files': request.data.get('submitted_files', [])}
-        )
-        serializer = SubmissionSerializer(submission)
-        return Response(serializer.data)
+            raise serializers.ValidationError({'detail': 'Deadline passed'})
+        if Submission.objects.filter(
+            assignment=assignment, 
+            student=self.request.user
+        ).exists():
+            raise serializers.ValidationError(
+                {'detail': 'You have already submitted this assignment'}
+            )
+        serializer.save(student=self.request.user, assignment=assignment)
 
 # 4. Teacher views all submissions for an assignment
 class SubmissionListView(generics.ListAPIView):

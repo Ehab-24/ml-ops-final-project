@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import type { Class } from "@/types"
-import { getClasses } from "@/api/class"
+import { getClasses, joinClass } from "@/api/class"
 import {
     NavigationMenu,
     NavigationMenuItem,
@@ -10,6 +10,18 @@ import {
 import { toast } from "sonner"
 import { Button } from "./ui/button"
 import { useAuth } from "@/lib/AuthContext"
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Input } from "./ui/input"
+import { Form, FormControl, FormLabel, FormField, FormItem, FormMessage, FormDescription } from "@/components/ui/form";
+import * as z from "zod"
+import { useForm } from "react-hook-form"
+import { zodResolver } from "@hookform/resolvers/zod"
 
 export function Sidebar() {
     const [classes, setClasses] = useState<Class[]>([])
@@ -52,11 +64,80 @@ export function Sidebar() {
                 </NavigationMenu>
             </div>
 
-            <div className="flex flex-col">
+            <div className="flex flex-col gap-2">
+                <JoinClass />
                 <Button variant="outline" onClick={() => logout()}>
                     Logout
                 </Button>
             </div>
         </aside>
+    )
+}
+
+
+
+const joinClassSchema = z.object({
+    invite_code: z.string().length(7)
+})
+type JoinClassFormValues = z.infer<typeof joinClassSchema>;
+
+function JoinClass() {
+
+    const [open, setOpen] = useState(false)
+
+    const form = useForm<JoinClassFormValues>({
+        resolver: zodResolver(joinClassSchema),
+        defaultValues: {
+            invite_code: "",
+        },
+    });
+
+    function onSubmit(values: JoinClassFormValues) {
+        joinClass(values).then(result => {
+            if (result.ok) {
+                toast('Class joined successfully!')
+                setOpen(false)
+            }
+            else
+                toast.error(result.error)
+        })
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={setOpen} >
+            <DialogTrigger asChild>
+                <Button variant="outline">
+                    Join Class
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Enter classroom invite_code</DialogTitle>
+                </DialogHeader>
+                <div>
+                    <Form {...form}>
+                        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                            <FormField
+                                control={form.control}
+                                name="invite_code"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Class Code</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                        <FormDescription>
+                                            Enter the 7-character class invite code provided by your instructor.
+                                        </FormDescription>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <Button variant="outline" type="submit">Join Class</Button>
+                        </form>
+                    </Form>
+                </div>
+            </DialogContent>
+        </Dialog>
     )
 }

@@ -18,9 +18,10 @@ class Assignment(models.Model):
 class Submission(models.Model):
     assignment = models.ForeignKey(Assignment, on_delete=models.CASCADE, related_name='submissions')
     student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='submissions')
-    submitted_files = models.JSONField(default=list)  # list of solution file URLs/paths
+    submitted_file = models.FileField(max_length=1024)
     submitted_at = models.DateTimeField(auto_now_add=True)
     score = models.FloatField(null=True, blank=True)
+    is_hand_written = models.BooleanField(null=False, blank=False)
 
     class Meta:
         unique_together = ('assignment', 'student')

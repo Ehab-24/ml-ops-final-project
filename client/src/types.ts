@@ -1,5 +1,5 @@
 export type Result<T, E> = { ok: true; value: T } | { ok: false; error: E }
-export type APIError = string | string[]
+export type APIError = string
 export type APIResponse<T> = Promise<Result<T, APIError>>
 
 export type Project = {
@@ -64,6 +64,7 @@ export type Assignment = {
     task_file: string
     solution_file: string
     submission_count: number
+    submitted: boolean
 }
 
 export type ClassDetails = {

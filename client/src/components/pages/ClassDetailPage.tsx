@@ -19,10 +19,8 @@ export default function ClassDetailPage() {
     useEffect(() => {
         if (!classId || !Number(classId)) return
         getClass(Number(classId)).then((result) => {
-            if (result.ok) {
+            if (result.ok)
                 setClassData(result.value)
-                console.log(result.value)
-            }
             else
                 toast.error('Unable to load class!')
         })
@@ -81,9 +79,25 @@ export default function ClassDetailPage() {
                                         </Button>
                                     )}
                                 </div>
-                                <p>
-                                    {a.submission_count} submitted
-                                </p>
+
+                                {auth.role === "teacher" ? (
+                                    <p>
+                                        {a.submission_count} submitted
+                                    </p>
+                                ) : a.submitted ? (
+                                    <p>
+                                        submitted
+                                    </p>
+                                ) : new Date(a.deadline) < new Date() ? (
+                                    <p>
+                                        missed
+                                    </p>
+                                ) : (
+                                    <p>
+                                        pending
+                                    </p>
+                                )
+                                }
                             </div>
                         </CardContent>
                     </Card>

@@ -22,11 +22,11 @@ export async function apiCall<T>(fn: () => Promise<{ data: any }>): APIResponse<
         const response = await fn();
         return { ok: true, value: response.data };
     } catch (error) {
-        const axiosError = error as AxiosError<{ error?: string; errors?: string[] }>;
+        const axiosError = error as AxiosError<{ [key: string]: string }>;
         const status = axiosError.response?.status;
-        const errMsg =
-            axiosError.response?.data?.error ||
-            axiosError.response?.data?.errors?.join(", ") ||
+
+        const errors = Object.values(axiosError.response?.data ?? {})
+        const errMsg = errors.length > 0 ? errors[0] :
             (status ? statusMessages[status] || `Error ${status}` : "Unknown error");
         return { ok: false, error: errMsg };
     }
