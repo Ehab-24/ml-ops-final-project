@@ -73,6 +73,7 @@ export type ClassDetails = {
     section: string
     subject: string
     student_count: number
+    invite_code: string
     teacher: {
         id: number
         username: number

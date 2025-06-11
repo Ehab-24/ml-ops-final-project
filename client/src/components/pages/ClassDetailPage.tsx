@@ -42,6 +42,7 @@ export default function ClassDetailPage() {
                     <CardDescription>{classDetails.subject} • {classDetails.section}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex items-center justify-between">
+                    <p className="text-sm text-gray-500">Invitation Code: {classDetails.invite_code}</p>
                     <p className="text-sm text-gray-500">Teacher: {classDetails.teacher.username || classDetails.teacher.email}</p>
                     <p className="text-sm">{classDetails.student_count} enrolled</p>
                 </CardContent>
