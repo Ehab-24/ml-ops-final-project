@@ -1,42 +1,118 @@
 import { Link } from "react-router-dom";
 import SignupForm from "@/components/forms/SignupForm";
+import { GraduationCap, Users, BookOpen, Award } from "lucide-react";
 
 export default function SignupPage() {
-    return (
-        <div className="flex flex-wrap">
-            <div className="flex w-full flex-col md:w-1/2">
-                <div className="flex justify-center pt-12 md:-mb-24 md:justify-start md:pl-12">
-                    <a href="#" className="border-b-gray-700 border-b-4 pb-2 text-2xl font-bold text-gray-900"> Damasus . </a>
-                </div>
-                <div className="lg:w-[28rem] mx-auto my-auto flex flex-col justify-center pt-8 md:justify-start md:px-6 md:pt-0">
-                    <p className="text-left text-3xl font-bold">Welcome</p>
-                    <p className="mt-2 text-left text-gray-500">Welcome, please enter your details.</p>
-                    <button className="-2 mt-8 flex items-center justify-center rounded-md border px-4 py-1 outline-none ring-gray-400 ring-offset-2 transition focus:ring-2 hover:border-transparent hover:bg-black hover:text-white">
-                        <img className="mr-2 h-5" src="https://static.cdnlogo.com/logos/g/35/google-icon.svg" alt="showcase hotel" /> Sign up with Google
-
-                    </button>
-                    <div className="relative mt-8 flex h-px place-items-center bg-gray-200">
-                        <div className="absolute left-1/2 h-6 w-14 -translate-x-1/2 bg-white text-center text-sm text-gray-500">or</div>
-                    </div>
-                    <SignupForm />
-                    <div className="py-12 text-center">
-                        <p className="whitespace-nowrap text-gray-600">
-                            Already have an account?&nbsp;
-                            <Link to="/login" className="underline-offset-4 font-semibold text-gray-900 underline">Log in</Link>.
-                        </p>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-white dark:from-gray-900 dark:to-blue-950 flex">
+      {/* Left side - Signup Form */}
+      <div className="flex w-full lg:w-1/2 flex-col">
+        <div className="flex justify-center pt-8 lg:justify-start lg:pl-8">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
+              <GraduationCap className="w-5 h-5 text-white" />
             </div>
-            <div className="pointer-events-none relative hidden h-screen select-none bg-black md:block md:w-1/2">
-                <div className="absolute bottom-0 z-10 px-8 text-white opacity-100">
-                    <p className="mb-8 text-3xl font-semibold leading-10">An amazing property is more than just a place to stay; it’s an invitation to create memories that last a lifetime.</p>
-                    <p className="mb-4 text-3xl font-semibold">Ehab Sohail</p>
-                    <p className="">Founder, BookNest</p>
-                    <p className="mb-7 text-sm opacity-70">Property Renter</p>
-                </div>
-                <img className="-z-1 absolute top-0 h-full w-full object-cover opacity-90" src="https://images.unsplash.com/photo-1565301660306-29e08751cc53?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=687&q=80" />
-            </div>
+            <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
+              ClassManager
+            </span>
+          </div>
         </div>
-    )
-}
 
+        <div className="flex-1 flex items-center justify-center px-6 lg:px-8">
+          <div className="w-full max-w-md space-y-8">
+            <div className="text-center lg:text-left">
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-white">
+                Create your account
+              </h1>
+              <p className="mt-2 text-gray-600 dark:text-gray-400">
+                Join thousands of educators and students
+              </p>
+            </div>
+
+            <div className="space-y-6">
+              <SignupForm />
+
+              <div className="text-center">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Already have an account?{" "}
+                  <Link
+                    to="/login"
+                    className="font-medium text-blue-600 hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                  >
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right side - Features */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 to-blue-800 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
+          <div className="space-y-8">
+            <div className="space-y-4">
+              <h2 className="text-3xl font-bold leading-tight">
+                Join the future of education
+              </h2>
+              <p className="text-blue-100 text-lg leading-relaxed">
+                Whether you're a teacher or student, ClassManager provides all
+                the tools you need for modern, efficient classroom management.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-6">
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Users className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">
+                    For Teachers
+                  </h3>
+                  <p className="text-blue-100 text-sm">
+                    Create classes, assign homework, and track student progress
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <BookOpen className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">
+                    For Students
+                  </h3>
+                  <p className="text-blue-100 text-sm">
+                    Join classes, submit assignments, and stay organized
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                  <Award className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-white mb-1">
+                    Track Progress
+                  </h3>
+                  <p className="text-blue-100 text-sm">
+                    Monitor performance and achievements in real-time
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Background Pattern */}
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24"></div>
+      </div>
+    </div>
+  );
+}
