@@ -34,10 +34,14 @@ class CustomUserManager(BaseUserManager):
 class CustomUser(AbstractUser):
     username = None
     email = models.EmailField(unique=True)
-    role = models.CharField(max_length=10, choices=(
-        ("student", "Student"),
-        ("teacher", "Teacher"),
-    ))
+    name = models.CharField(max_length=100, blank=True)
+    role = models.CharField(
+        max_length=10,
+        choices=(
+            ("student", "Student"),
+            ("teacher", "Teacher"),
+        ),
+    )
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = []
