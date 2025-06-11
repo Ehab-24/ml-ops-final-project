@@ -5,8 +5,11 @@ from django.forms.models import model_to_dict
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
-from accounts.serializers import RegisterUserSerializer
-from accounts.tokens import CustomTokenObtainPairSerializer, CustomTokenRefreshSerializer
+from accounts.serializers import RegisterUserSerializer, UserSerializer
+from accounts.tokens import (
+    CustomTokenObtainPairSerializer,
+    CustomTokenRefreshSerializer,
+)
 
 
 class CustomTokenObtainPairView(TokenObtainPairView):
@@ -23,11 +26,14 @@ class RegisterUser(APIView):
         if serializer.is_valid():
             user = serializer.save()
             refresh = RefreshToken.for_user(user)
-            return Response({
-                "refresh": str(refresh),
-                "access": str(refresh.access_token),
-                "role": user.role,
-            }, status=status.HTTP_201_CREATED)
+            return Response(
+                {
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "role": user.role,
+                },
+                status=status.HTTP_201_CREATED,
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -35,4 +41,5 @@ class GetUser(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request):
-        return Response({"user": model_to_dict(request.user, exclude=["password"])}, status=status.HTTP_200_OK)
+        serializer = UserSerializer(request.user)
+        return Response({"user": serializer.data}, status=status.HTTP_200_OK)

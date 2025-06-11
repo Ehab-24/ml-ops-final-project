@@ -1,5 +1,14 @@
 from rest_framework import serializers
 from .models import Assignment, Submission
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class StudentSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "name", "email"]
 
 
 class CreateAssignmentSerializer(serializers.ModelSerializer):
@@ -12,6 +21,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
     submitted = serializers.SerializerMethodField()
     solution_file = serializers.SerializerMethodField()
     submission_count = serializers.SerializerMethodField()
+    user_submission = serializers.SerializerMethodField()
 
     class Meta:
         model = Assignment
@@ -25,12 +35,35 @@ class AssignmentSerializer(serializers.ModelSerializer):
             "solution_file",
             "submitted",
             "submission_count",
+            "user_submission",
         ]
 
     def get_submitted(self, obj):
         user = self.context["request"].user
         if user.role == "student":
             return Submission.objects.filter(assignment=obj, student=user).exists()
+        return None
+
+    def get_user_submission(self, obj):
+        user = self.context["request"].user
+        if user.role == "student":
+            try:
+                submission = Submission.objects.get(assignment=obj, student=user)
+                return {
+                    "id": submission.id,
+                    "submitted_file": (
+                        self.context["request"].build_absolute_uri(
+                            submission.submitted_file.url
+                        )
+                        if submission.submitted_file
+                        else None
+                    ),
+                    "submitted_at": submission.submitted_at,
+                    "is_hand_written": submission.is_hand_written,
+                    "score": submission.score,
+                }
+            except Submission.DoesNotExist:
+                return None
         return None
 
     def get_solution_file(self, obj):
@@ -52,9 +85,30 @@ class AssignmentSerializer(serializers.ModelSerializer):
 
 
 class SubmissionSerializer(serializers.ModelSerializer):
+    student = StudentSerializer(read_only=True)
+    submitted_file_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Submission
-        fields = ["id", "student", "submitted_file", "submitted_at", "score"]
+        fields = [
+            "id",
+            "student",
+            "submitted_file",
+            "submitted_file_url",
+            "submitted_at",
+            "score",
+            "is_hand_written",
+        ]
+
+    def get_submitted_file_url(self, obj):
+        if obj.submitted_file:
+            request = self.context.get("request")
+            return (
+                request.build_absolute_uri(obj.submitted_file.url)
+                if request
+                else obj.submitted_file.url
+            )
+        return None
 
 
 class SubmissionCreateSerializer(serializers.ModelSerializer):
