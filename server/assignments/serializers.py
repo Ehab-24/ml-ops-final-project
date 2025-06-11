@@ -14,7 +14,7 @@ class StudentSerializer(serializers.ModelSerializer):
 class CreateAssignmentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Assignment
-        fields = ["name", "description", "deadline", "task_file", "solution_file"]
+        fields = ["name", "description", "max_score", "deadline", "task_file", "solution_file"]
 
 
 class AssignmentSerializer(serializers.ModelSerializer):
@@ -30,6 +30,7 @@ class AssignmentSerializer(serializers.ModelSerializer):
             "classroom",
             "name",
             "description",
+            "max_score",
             "deadline",
             "task_file",
             "solution_file",

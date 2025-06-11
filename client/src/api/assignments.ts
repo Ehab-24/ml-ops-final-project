@@ -19,6 +19,7 @@ export type GetSubmissionsResponse = {
   score: number | null;
   is_hand_written: boolean;
 }[];
+export type AutoCheckResponse = {};
 
 export async function getAssignment(
   id: number,
@@ -55,5 +56,11 @@ export async function getAssignmentSubmissions(
 ): APIResponse<GetSubmissionsResponse> {
   return apiCall<GetSubmissionsResponse>(() =>
     axiosInstance.get(`assignments/submissions/${assignmentId}/`)
+  );
+}
+
+export async function autoCheckAssignment(assignmentId: number, classId: number) : APIResponse<AutoCheckResponse> {
+  return apiCall<GetSubmissionsResponse>(() =>
+    axiosInstance.post(`assignments/${assignmentId}/class/${classId}/auto-check/`, {})
   );
 }

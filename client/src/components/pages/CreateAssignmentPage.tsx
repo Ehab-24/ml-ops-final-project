@@ -24,10 +24,13 @@ import {
   Calendar,
   ArrowLeft,
   CheckCircle,
+  LetterText,
+  Sigma
 } from "lucide-react";
 
 const assignmentSchema = z.object({
   title: z.string().min(1, "Title is required"),
+  max_score: z.number().min(0),
   description: z.string().optional(),
   deadline: z.string().min(1, "Deadline is required"),
   taskFile: z
@@ -45,6 +48,7 @@ export default function CreateAssignmentPage() {
     resolver: zodResolver(assignmentSchema),
     defaultValues: {
       title: "",
+      max_score: 0,
       description: "",
       deadline: "",
       taskFile: undefined,
@@ -59,6 +63,7 @@ export default function CreateAssignmentPage() {
     if (!classId) return;
     const formData = new FormData();
     formData.append("name", values.title);
+    formData.append("max_score", String(values.max_score));
     formData.append("description", values.description || "");
     formData.append("deadline", values.deadline);
     formData.append("task_file", values.taskFile[0]);
@@ -152,10 +157,36 @@ export default function CreateAssignmentPage() {
 
                   <FormField
                     control={form.control}
+                    name="max_score"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Sigma className="h-4 w-4 text-blue-600" />
+                          Max Score
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            placeholder="100"
+                            className="h-12 bg-white/70 dark:bg-gray-800/70 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 transition-all"
+                            {...field}
+                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
                     name="description"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Description</FormLabel>
+                        <FormLabel>
+                          <LetterText className="h-4 w-4 text-blue-600" />
+                          Description
+                        </FormLabel>
                         <FormControl>
                           <Textarea
                             placeholder="Provide instructions, grading criteria, or additional details for students..."

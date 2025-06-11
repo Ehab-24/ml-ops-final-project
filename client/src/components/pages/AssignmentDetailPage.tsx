@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import type { Assignment } from "@/types";
-import { getAssignment, getAssignmentSubmissions } from "@/api/assignments";
+import { autoCheckAssignment, getAssignment, getAssignmentSubmissions } from "@/api/assignments";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
 import AssignmentSubmissionForm from "../forms/AssignmentSubmissionForm";
@@ -23,6 +23,7 @@ import {
   Eye,
   Award,
   File,
+  Sigma,
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -129,6 +130,15 @@ export default function AssignmentDetailsPage() {
     document.body.removeChild(link);
   };
 
+    function handleAutoCheck() {
+        autoCheckAssignment(Number(assignmentId || "-1"), Number(classId || "-1")).then(result => {
+            if (result.ok)
+              window.location.reload()
+            else
+              toast.error(result.error)
+        })
+    }
+
   if (!assignment)
     return (
       <div className="grid place-items-center min-w-full min-h-full">
@@ -198,6 +208,18 @@ export default function AssignmentDetailsPage() {
                       }
                     >
                       {format(new Date(assignment.deadline), "p")}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Sigma className="h-4 w-4 text-blue-600" />
+                    <span
+                      className={
+                        isOverdue
+                          ? "text-red-600 dark:text-red-400 font-medium"
+                          : ""
+                      }
+                    >
+                      {assignment.max_score}
                     </span>
                   </div>
                 </div>
@@ -397,9 +419,16 @@ export default function AssignmentDetailsPage() {
         {auth.role === "teacher" && (
           <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
             <CardHeader>
-              <CardTitle className="flex items-center gap-3">
-                <Users className="h-6 w-6 text-blue-600" />
-                Student Submissions ({submissions.length})
+              <CardTitle className="flex justify-between items-center gap-3">
+                <div className="flex gap-3 items-center">
+                  <Users className="h-6 w-6 text-blue-600" />
+                  Student Submissions ({submissions.length})
+                </div>
+                {new Date(assignment.deadline) >= new Date() &&
+                  <Button onClick={handleAutoCheck}>
+                    Auto Check
+                  </Button>
+                }
               </CardTitle>
             </CardHeader>
             <CardContent>

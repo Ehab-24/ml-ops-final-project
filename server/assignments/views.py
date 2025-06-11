@@ -130,3 +130,56 @@ class StudentScoreView(generics.RetrieveAPIView):
         return Submission.objects.get(
             assignment_id=assignment_id, student=self.request.user
         )
+
+
+class AutoCheckSubmissionsView(generics.GenericAPIView):
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+    
+    def post(self, request, *args, **kwargs):
+        assignment_id = kwargs.get("assignment_id")
+        assignment = get_object_or_404(
+            Assignment,
+            id=assignment_id,
+            classroom__teacher=request.user
+        )
+        
+        if not assignment.task_file or not assignment.solution_file:
+            return Response(
+                {"detail": "Assignment must have both task and solution files for auto-checking"},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        submissions = Submission.objects.filter(assignment=assignment, score__isnull=True)
+        if not submissions.exists():
+            return Response(
+                {"detail": "No unchecked submissions found"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        
+        # Process each submission
+        for submission in submissions:
+            if not submission.submitted_file:
+                continue
+                
+            try:
+                score = Assignment.auto_check(
+                    assignment.task_file.path,
+                    assignment.solution_file.path,
+                    submission.submitted_file.path
+                )
+                score = score * assignment.max_score
+                submission.score = round(score * 4) / 4
+                submission.save()
+            except Exception as e:
+                # Log error but continue with other submissions
+                print(f"Error processing submission {submission.id}: {str(e)}")
+                continue
+        
+        # Return the updated submissions
+        updated_submissions = Submission.objects.filter(assignment=assignment)
+        serializer = SubmissionSerializer(
+            updated_submissions,
+            many=True,
+            context={'request': request}
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)

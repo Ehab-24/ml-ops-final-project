@@ -61,6 +61,7 @@ export type Assignment = {
   id: number;
   name: string;
   description: string;
+  max_score: number;
   deadline: string;
   task_file: string;
   solution_file: string;
