@@ -172,6 +172,7 @@ export default function ClassDetailPage() {
                   <p className="text-lg font-bold text-purple-700 dark:text-purple-300">
                     {classDetails.teacher.name ||
                       classDetails.teacher.username ||
+                      classDetails.teacher.email ||
                       "N/A"}
                   </p>
                   {classDetails.teacher.name && (
