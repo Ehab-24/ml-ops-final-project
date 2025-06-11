@@ -9,7 +9,13 @@ User = get_user_model()
 class TeacherSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email']
+        fields = ["id", "username", "email"]
+
+
+class CreateClassSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Class
+        fields = ["name", "subject", "section"]
 
 
 class ClassSerializer(serializers.ModelSerializer):
@@ -18,7 +24,7 @@ class ClassSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Class
-        fields = ['id', 'name', 'subject', 'section', 'teacher', 'student_count']
+        fields = ["id", "name", "subject", "section", "teacher", "student_count"]
 
     def get_student_count(self, obj):
         return obj.classmembership_set.count()
@@ -36,14 +42,22 @@ class ClassDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Class
         fields = [
-            'id', 'name', 'subject', 'section', 'invite_code',
-            'student_count', 'teacher', 'assignments'
+            "id",
+            "name",
+            "subject",
+            "section",
+            "invite_code",
+            "student_count",
+            "teacher",
+            "assignments",
         ]
 
     def get_assignments(self, obj):
         assignments = obj.assignments.all()
-        request = self.context.get('request')
-        serializer = AssignmentSerializer(assignments, many=True, context={'request': request})
+        request = self.context.get("request")
+        serializer = AssignmentSerializer(
+            assignments, many=True, context={"request": request}
+        )
         return serializer.data
 
     def get_student_count(self, obj):
