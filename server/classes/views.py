@@ -41,7 +41,7 @@ class JoinClassView(generics.CreateAPIView):
 
     def post(self, request, *args, **kwargs):
         code = request.data["invite_code"]
-        classroom = Class.objects.get(invite_code=code)
+        classroom = get_object_or_404(Class, invite_code=code)
         ClassMembership.objects.get_or_create(student=request.user, classroom=classroom)
         return Response({"status": "joined"})
 
