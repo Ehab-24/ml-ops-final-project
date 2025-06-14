@@ -1,4 +1,4 @@
-from rest_framework import generics, permissions, status, parsers, serializers
+from rest_framework import generics, permissions, status, parsers
 from rest_framework.response import Response
 from django.utils import timezone
 from django.shortcuts import get_object_or_404
@@ -12,7 +12,7 @@ from assignments.serializers import (
 )
 from classes.models import Class
 from accounts.permissions import IsTeacher, IsStudent
-
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # 1. Teacher creates assignment in a class
 class CreateAssignmentView(generics.CreateAPIView):
@@ -156,24 +156,10 @@ class AutoCheckSubmissionsView(generics.GenericAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Process each submission
-        for submission in submissions:
-            if not submission.submitted_file:
-                continue
-                
-            try:
-                score = Assignment.auto_check(
-                    assignment.task_file.path,
-                    assignment.solution_file.path,
-                    submission.submitted_file.path
-                )
-                score = score * assignment.max_score
-                submission.score = round(score * 4) / 4
-                submission.save()
-            except Exception as e:
-                # Log error but continue with other submissions
-                print(f"Error processing submission {submission.id}: {str(e)}")
-                continue
+        with ThreadPoolExecutor() as executor:
+            futures = [executor.submit(self.process_submission, sub, assignment) for sub in submissions if sub.submitted_file]
+            for future in as_completed(futures):
+                _ = future.result()
         
         # Return the updated submissions
         updated_submissions = Submission.objects.filter(assignment=assignment)
@@ -183,3 +169,21 @@ class AutoCheckSubmissionsView(generics.GenericAPIView):
             context={'request': request}
         )
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def process_submission(self, submission, assignment):
+        if not submission.submitted_file:
+            return None
+
+        print(f" ⏱ Auto checking {submission}")
+
+        try:
+            score = submission.auto_check(assignment)
+            if score is None:
+                return None
+            submission.score = round(score * 4) / 4
+            submission.save()
+            print(f" ✔ Checked {submission}")
+            return submission.id
+        except Exception as e:
+            print(f"Error processing submission {submission.id}: {str(e)}")
+            return None
