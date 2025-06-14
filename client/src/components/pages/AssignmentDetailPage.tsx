@@ -424,7 +424,7 @@ export default function AssignmentDetailsPage() {
                   <Users className="h-6 w-6 text-blue-600" />
                   Student Submissions ({submissions.length})
                 </div>
-                {new Date(assignment.deadline) >= new Date() &&
+                {new Date(assignment.deadline) < new Date() &&
                   <Button onClick={handleAutoCheck}>
                     Auto Check
                   </Button>
