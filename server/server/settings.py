@@ -150,6 +150,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-# Gemini
+# Models
 GEMINI_API_KEY = "AIzaSyBUiMTEUfqXv21vb-OVos-W92OpIRhtQ9M"
 GEMINI_MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+OCR_PREDICTION_URL="http://localhost:9000/2015-03-31/functions/function/invocations"

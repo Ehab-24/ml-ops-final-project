@@ -118,7 +118,7 @@ class Submission(models.Model):
         if self.is_hand_written and submission_mime_type == "image/png":
             image_b64 = read_file_b64(self.submitted_file)
             response = requests.post(
-                "http://localhost:9000/2015-03-31/functions/function/invocations",
+                settings.OCR_PREDICTION_URL,
                 json={"image": image_b64}
             )
             if response.status_code != 200:
