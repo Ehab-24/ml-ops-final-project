@@ -153,4 +153,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # Models
 GEMINI_API_KEY = "AIzaSyBUiMTEUfqXv21vb-OVos-W92OpIRhtQ9M"
 GEMINI_MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
-OCR_PREDICTION_URL="http://localhost:9000/2015-03-31/functions/function/invocations"
+#OCR_PREDICTION_URL="http://localhost:9000/2015-03-31/functions/function/invocations"
+OCR_PREDICTION_URL="https://zatxeedvkqbkgirog5ew4wshoe0neozq.lambda-url.ap-south-1.on.aws/"
