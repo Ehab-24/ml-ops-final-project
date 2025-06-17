@@ -29,7 +29,7 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 if os.environ.get('RENDER'):
-    ALLOWED_HOSTS += ['your-service-name.onrender.com']
+    ALLOWED_HOSTS += ['ml-ops-final-project.onrender.com']
     DEBUG = False
 
 
