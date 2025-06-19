@@ -4,8 +4,8 @@ import type { APIResponse } from "@/types";
 import type { Assignment } from "@/types";
 
 export type GetAssignmentResponse = Assignment;
-export type SubmitAssignmentResponse = {};
-export type CreateAssignmentResponse = {};
+export type SubmitAssignmentResponse = object;
+export type CreateAssignmentResponse = object;
 export type GetSubmissionsResponse = {
   id: number;
   student: {
@@ -19,12 +19,25 @@ export type GetSubmissionsResponse = {
   score: number | null;
   is_hand_written: boolean;
 }[];
-export type AutoCheckResponse = {};
+export type AutoCheckResponse = object;
 export type ResetScoresResponse = {
   detail: string;
   assignment_id: number;
   assignment_name: string;
   reset_count: number;
+};
+export type MarkSubmissionResponse = {
+  id: number;
+  student: {
+    id: number;
+    name: string;
+    email: string;
+  };
+  submitted_file: string;
+  submitted_file_url: string;
+  submitted_at: string;
+  score: number;
+  is_hand_written: boolean;
 };
 
 export async function getAssignment(
@@ -82,5 +95,14 @@ export async function resetSubmissionScores(
 ): APIResponse<ResetScoresResponse> {
   return apiCall<ResetScoresResponse>(() =>
     axiosInstance.post(`assignments/${assignmentId}/reset-scores/`, {})
+  );
+}
+
+export async function markSubmission(
+  submissionId: number,
+  score: number
+): APIResponse<MarkSubmissionResponse> {
+  return apiCall<MarkSubmissionResponse>(() =>
+    axiosInstance.patch(`assignments/mark/${submissionId}/`, { score })
   );
 }

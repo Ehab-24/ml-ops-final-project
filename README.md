@@ -11,6 +11,7 @@ A comprehensive assignment management platform with AI-powered auto-grading capa
 - **📤 Student Submissions**: Support for both digital and handwritten submissions
 - **🤖 AI Auto-Grading**: Intelligent scoring using Google Gemini AI
 - **👁️ OCR Integration**: Text recognition for handwritten assignments
+- **📊 Manual Scoring**: Teachers can manually set and override scores
 - **⚡ Real-time Updates**: Live feedback and notifications
 
 ## 🛠️ Tech Stack
@@ -225,8 +226,9 @@ npm run lint
 2. **Create Classes** and share class codes with students
 3. **Create Assignments** with task and solution files
 4. **Auto-Grade Submissions** using the AI-powered grading system
-5. **Review and Adjust Scores** manually if needed
-6. **Reset Scores** for demo purposes (unmarks all submissions)
+5. **Manual Scoring**: Set scores manually using the score input field next to each submission
+6. **Review and Adjust Scores** - Override AI scores or score ungraded submissions
+7. **Reset Scores** for demo purposes (unmarks all submissions)
 
 ### For Students
 
@@ -242,6 +244,8 @@ npm run lint
 
 - Compares student submissions with provided solutions
 - Uses Google Gemini AI for intelligent scoring
+- **Smart Processing**: Only grades submissions that don't already have scores
+- **Manual Override Protection**: Skips submissions that were manually scored
 - Supports multiple file formats
 - Handles both digital and handwritten submissions
 
@@ -253,9 +257,13 @@ npm run lint
 
 #### Score Management
 
-- Teachers can manually override AI scores
-- Reset functionality for demo purposes
-- Bulk auto-grading for efficiency
+- **Manual Scoring**: Enter scores directly using input fields next to each submission
+- **AI Override**: Teachers can manually override auto-generated scores
+- **Flexible Scoring**: Support for decimal scores (e.g., 7.5, 8.25) with 0.25 step increments
+- **Real-time Updates**: Scores update immediately without page refresh
+- **Validation**: Score inputs are validated against assignment maximum score
+- **Reset Functionality**: Bulk reset all scores for demo purposes
+- **Bulk Auto-grading**: Auto-grade multiple submissions simultaneously
 
 ## 🔒 Security Considerations
 

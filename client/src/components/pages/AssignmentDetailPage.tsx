@@ -2,6 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import type { Assignment } from "@/types";
@@ -10,6 +11,7 @@ import {
   getAssignment,
   getAssignmentSubmissions,
   resetSubmissionScores,
+  markSubmission,
 } from "@/api/assignments";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
@@ -51,6 +53,10 @@ export default function AssignmentDetailsPage() {
   const [assignment, setAssignment] = useState<Assignment | null>(null);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loadingSubmissions, setLoadingSubmissions] = useState(false);
+  const [scoringSubmissionId, setScoringSubmissionId] = useState<number | null>(
+    null
+  );
+  const [scoreInputs, setScoreInputs] = useState<Record<number, string>>({});
 
   const { auth } = useAuth();
 
@@ -164,6 +170,38 @@ export default function AssignmentDetailsPage() {
     }
   }
 
+  function handleManualScore(submissionId: number) {
+    const scoreStr = scoreInputs[submissionId];
+    if (!scoreStr || scoreStr.trim() === "") {
+      toast.error("Please enter a score");
+      return;
+    }
+
+    const score = parseFloat(scoreStr);
+    if (isNaN(score) || score < 0 || score > (assignment?.max_score || 100)) {
+      toast.error(
+        `Score must be between 0 and ${assignment?.max_score || 100}`
+      );
+      return;
+    }
+
+    setScoringSubmissionId(submissionId);
+    markSubmission(submissionId, score).then((result) => {
+      if (result.ok) {
+        toast.success("Score updated successfully");
+        // Update the submissions state with the new score
+        setSubmissions((prev) =>
+          prev.map((sub) => (sub.id === submissionId ? { ...sub, score } : sub))
+        );
+        // Clear the input
+        setScoreInputs((prev) => ({ ...prev, [submissionId]: "" }));
+      } else {
+        toast.error(result.error);
+      }
+      setScoringSubmissionId(null);
+    });
+  }
+
   if (!assignment)
     return (
       <div className="grid place-items-center min-w-full min-h-full">
@@ -274,7 +312,7 @@ export default function AssignmentDetailsPage() {
               </div>
             )}
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
               {/* Task File */}
               <div className="space-y-3">
                 <Label className="flex items-center gap-2 text-lg font-semibold text-gray-900 dark:text-gray-100">
@@ -282,13 +320,13 @@ export default function AssignmentDetailsPage() {
                   Task Document
                 </Label>
                 <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <div className="w-10 h-10 bg-blue-100 dark:bg-blue-800 rounded-lg flex items-center justify-center flex-shrink-0">
                         <FileText className="h-5 w-5 text-blue-600 dark:text-blue-400" />
                       </div>
-                      <div>
-                        <p className="font-medium text-blue-900 dark:text-blue-100">
+                      <div className="min-w-0 flex-1">
+                        <p className="font-medium text-blue-900 dark:text-blue-100 truncate">
                           {getFilenameFromUrl(assignment.task_file)}
                         </p>
                         <p className="text-sm text-blue-600 dark:text-blue-400">
@@ -300,7 +338,7 @@ export default function AssignmentDetailsPage() {
                       asChild
                       variant="outline"
                       size="sm"
-                      className="hover:bg-blue-100 dark:hover:bg-blue-800"
+                      className="hover:bg-blue-100 dark:hover:bg-blue-800 flex-shrink-0"
                     >
                       <a
                         href={assignment.task_file}
@@ -324,13 +362,13 @@ export default function AssignmentDetailsPage() {
                     Solution File
                   </Label>
                   <div className="p-4 bg-purple-50 dark:bg-purple-900/20 rounded-lg border border-purple-200 dark:border-purple-800">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="w-10 h-10 bg-purple-100 dark:bg-purple-800 rounded-lg flex items-center justify-center flex-shrink-0">
                           <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
                         </div>
-                        <div>
-                          <p className="font-medium text-purple-900 dark:text-purple-100">
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-purple-900 dark:text-purple-100 truncate">
                             {getFilenameFromUrl(assignment.solution_file)}
                           </p>
                           <p className="text-sm text-purple-600 dark:text-purple-400">
@@ -342,7 +380,7 @@ export default function AssignmentDetailsPage() {
                         asChild
                         variant="outline"
                         size="sm"
-                        className="hover:bg-purple-100 dark:hover:bg-purple-800"
+                        className="hover:bg-purple-100 dark:hover:bg-purple-800 flex-shrink-0"
                       >
                         <a
                           href={assignment.solution_file}
@@ -444,19 +482,24 @@ export default function AssignmentDetailsPage() {
         {auth.role === "teacher" && (
           <Card className="shadow-xl border-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
             <CardHeader>
-              <CardTitle className="flex justify-between items-center gap-3">
+              <CardTitle className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
                 <div className="flex gap-3 items-center">
                   <Users className="h-6 w-6 text-blue-600" />
                   Student Submissions ({submissions.length})
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-col sm:flex-row gap-2">
                   {new Date(assignment.deadline) < new Date() && (
-                    <Button onClick={handleAutoCheck}>Auto Check</Button>
+                    <Button
+                      onClick={handleAutoCheck}
+                      className="w-full sm:w-auto"
+                    >
+                      Auto Check
+                    </Button>
                   )}
                   <Button
                     variant="outline"
                     onClick={handleResetScores}
-                    className="text-orange-600 hover:text-orange-700 border-orange-200 hover:bg-orange-50"
+                    className="text-orange-600 hover:text-orange-700 border-orange-200 hover:bg-orange-50 w-full sm:w-auto"
                   >
                     Reset Scores
                   </Button>
@@ -488,8 +531,8 @@ export default function AssignmentDetailsPage() {
                       key={submission.id}
                       className="p-4 border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors"
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-4">
+                      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                        <div className="flex items-center gap-4 flex-1">
                           <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center text-white font-bold text-sm">
                             {submission.student.name
                               ?.split(" ")
@@ -502,8 +545,8 @@ export default function AssignmentDetailsPage() {
                                 .slice(0, 2)
                                 .toUpperCase()}
                           </div>
-                          <div>
-                            <p className="font-medium text-gray-900 dark:text-gray-100">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
                               {submission.student.name ||
                                 submission.student.email}
                             </p>
@@ -514,7 +557,7 @@ export default function AssignmentDetailsPage() {
                                 "PPP 'at' p"
                               )}
                             </p>
-                            <div className="flex items-center gap-2 mt-1">
+                            <div className="flex items-center gap-2 mt-1 flex-wrap">
                               {submission.is_hand_written && (
                                 <Badge variant="outline" className="text-xs">
                                   Hand-written
@@ -528,21 +571,54 @@ export default function AssignmentDetailsPage() {
                             </div>
                           </div>
                         </div>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() =>
-                            handleDownloadSubmission(
-                              submission.submitted_file_url,
-                              submission.student.name ||
-                                submission.student.email
-                            )
-                          }
-                          className="flex items-center gap-2"
-                        >
-                          <Download className="h-4 w-4" />
-                          Download
-                        </Button>
+
+                        {/* Actions Section - Responsive */}
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-2">
+                          {/* Manual Score Input */}
+                          <div className="flex items-center gap-2">
+                            <Input
+                              type="number"
+                              placeholder="Score"
+                              min="0"
+                              max={assignment?.max_score || 100}
+                              step="0.25"
+                              value={scoreInputs[submission.id] || ""}
+                              onChange={(e) =>
+                                setScoreInputs((prev) => ({
+                                  ...prev,
+                                  [submission.id]: e.target.value,
+                                }))
+                              }
+                              className="w-16 h-8 text-sm flex-shrink-0"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => handleManualScore(submission.id)}
+                              disabled={scoringSubmissionId === submission.id}
+                              className="h-8 px-2 text-xs whitespace-nowrap flex-1 sm:flex-initial"
+                            >
+                              {scoringSubmissionId === submission.id
+                                ? "Saving..."
+                                : "Set Score"}
+                            </Button>
+                          </div>
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() =>
+                              handleDownloadSubmission(
+                                submission.submitted_file_url,
+                                submission.student.name ||
+                                  submission.student.email
+                              )
+                            }
+                            className="flex items-center justify-center gap-2 h-8 whitespace-nowrap w-full sm:w-auto"
+                          >
+                            <Download className="h-4 w-4" />
+                            <span className="sm:inline">Download</span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}
