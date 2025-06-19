@@ -25,7 +25,7 @@ import {
   ArrowLeft,
   CheckCircle,
   LetterText,
-  Sigma
+  Sigma,
 } from "lucide-react";
 
 const assignmentSchema = z.object({
@@ -170,7 +170,9 @@ export default function CreateAssignmentPage() {
                             placeholder="100"
                             className="h-12 bg-white/70 dark:bg-gray-800/70 border-gray-200 dark:border-gray-700 focus:ring-2 focus:ring-blue-500 transition-all"
                             {...field}
-                            onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                            onChange={(e) =>
+                              field.onChange(e.target.valueAsNumber)
+                            }
                           />
                         </FormControl>
                         <FormMessage />
