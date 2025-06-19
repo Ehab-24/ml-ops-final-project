@@ -14,6 +14,7 @@ from classes.models import Class
 from accounts.permissions import IsTeacher, IsStudent
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
+
 # 1. Teacher creates assignment in a class
 class CreateAssignmentView(generics.CreateAPIView):
     serializer_class = CreateAssignmentSerializer
@@ -191,3 +192,43 @@ class AutoCheckSubmissionsView(generics.GenericAPIView):
         except Exception as e:
             print(f"Error processing submission {submission.id}: {str(e)}")
             return None
+
+
+class ResetSubmissionScoresView(generics.GenericAPIView):
+    """
+    API endpoint to reset/unmark all submission scores for a specific assignment.
+    This is intended for demo purposes to allow re-running auto-grading without
+    creating new submissions.
+    """
+
+    permission_classes = [permissions.IsAuthenticated, IsTeacher]
+
+    def post(self, request, *args, **kwargs):
+        assignment_id = kwargs.get("assignment_id")
+        assignment = get_object_or_404(
+            Assignment, id=assignment_id, classroom__teacher=request.user
+        )
+
+        # Find all submissions for this assignment that have scores
+        submissions_with_scores = Submission.objects.filter(
+            assignment=assignment, score__isnull=False
+        )
+
+        if not submissions_with_scores.exists():
+            return Response(
+                {"detail": "No graded submissions found to reset"},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
+        # Reset scores to None
+        reset_count = submissions_with_scores.update(score=None)
+
+        return Response(
+            {
+                "detail": f"Successfully reset scores for {reset_count} submissions",
+                "assignment_id": assignment_id,
+                "assignment_name": assignment.name,
+                "reset_count": reset_count,
+            },
+            status=status.HTTP_200_OK,
+        )

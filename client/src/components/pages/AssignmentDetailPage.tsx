@@ -5,7 +5,12 @@ import { Badge } from "@/components/ui/badge";
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router";
 import type { Assignment } from "@/types";
-import { autoCheckAssignment, getAssignment, getAssignmentSubmissions } from "@/api/assignments";
+import {
+  autoCheckAssignment,
+  getAssignment,
+  getAssignmentSubmissions,
+  resetSubmissionScores,
+} from "@/api/assignments";
 import { toast } from "sonner";
 import { useAuth } from "@/lib/AuthContext";
 import AssignmentSubmissionForm from "../forms/AssignmentSubmissionForm";
@@ -130,14 +135,34 @@ export default function AssignmentDetailsPage() {
     document.body.removeChild(link);
   };
 
-    function handleAutoCheck() {
-        autoCheckAssignment(Number(assignmentId || "-1"), Number(classId || "-1")).then(result => {
-            if (result.ok)
-              window.location.reload()
-            else
-              toast.error(result.error)
-        })
+  function handleAutoCheck() {
+    autoCheckAssignment(
+      Number(assignmentId || "-1"),
+      Number(classId || "-1")
+    ).then((result) => {
+      if (result.ok) window.location.reload();
+      else toast.error(result.error);
+    });
+  }
+
+  function handleResetScores() {
+    if (
+      confirm(
+        "Are you sure you want to reset all scores for this assignment? This action cannot be undone."
+      )
+    ) {
+      resetSubmissionScores(Number(assignmentId || "-1")).then((result) => {
+        if (result.ok) {
+          toast.success(
+            `Successfully reset scores for ${result.value.reset_count} submissions`
+          );
+          window.location.reload();
+        } else {
+          toast.error(result.error);
+        }
+      });
     }
+  }
 
   if (!assignment)
     return (
@@ -424,11 +449,18 @@ export default function AssignmentDetailsPage() {
                   <Users className="h-6 w-6 text-blue-600" />
                   Student Submissions ({submissions.length})
                 </div>
-                {new Date(assignment.deadline) < new Date() &&
-                  <Button onClick={handleAutoCheck}>
-                    Auto Check
+                <div className="flex gap-2">
+                  {new Date(assignment.deadline) < new Date() && (
+                    <Button onClick={handleAutoCheck}>Auto Check</Button>
+                  )}
+                  <Button
+                    variant="outline"
+                    onClick={handleResetScores}
+                    className="text-orange-600 hover:text-orange-700 border-orange-200 hover:bg-orange-50"
+                  >
+                    Reset Scores
                   </Button>
-                }
+                </div>
               </CardTitle>
             </CardHeader>
             <CardContent>

@@ -118,7 +118,7 @@ export default function AssignmentSubmissionForm({
                     <div className="relative">
                       <Input
                         type="file"
-                        // accept=".pdf,.doc,.docx,.txt,.md,.zip,.py,.js,.html,.css,.java,.cpp,.c"
+                        accept=".pdf,.doc,.docx,.txt,.md,.zip,.py,.js,.html,.css,.java,.cpp,.c,.png"
                         className="h-14 bg-white/70 dark:bg-gray-800/70 border-2 border-dashed border-green-300 dark:border-green-700 focus:border-green-500 focus:ring-2 focus:ring-green-500 transition-all file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100 file:h-10"
                         onChange={(e) => {
                           const submitted_files = e.target.files;

@@ -20,6 +20,12 @@ export type GetSubmissionsResponse = {
   is_hand_written: boolean;
 }[];
 export type AutoCheckResponse = {};
+export type ResetScoresResponse = {
+  detail: string;
+  assignment_id: number;
+  assignment_name: string;
+  reset_count: number;
+};
 
 export async function getAssignment(
   id: number,
@@ -59,8 +65,22 @@ export async function getAssignmentSubmissions(
   );
 }
 
-export async function autoCheckAssignment(assignmentId: number, classId: number) : APIResponse<AutoCheckResponse> {
+export async function autoCheckAssignment(
+  assignmentId: number,
+  classId: number
+): APIResponse<AutoCheckResponse> {
   return apiCall<GetSubmissionsResponse>(() =>
-    axiosInstance.post(`assignments/${assignmentId}/class/${classId}/auto-check/`, {})
+    axiosInstance.post(
+      `assignments/${assignmentId}/class/${classId}/auto-check/`,
+      {}
+    )
+  );
+}
+
+export async function resetSubmissionScores(
+  assignmentId: number
+): APIResponse<ResetScoresResponse> {
+  return apiCall<ResetScoresResponse>(() =>
+    axiosInstance.post(`assignments/${assignmentId}/reset-scores/`, {})
   );
 }
