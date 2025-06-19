@@ -11,7 +11,6 @@ A comprehensive assignment management platform with AI-powered auto-grading capa
 - **📤 Student Submissions**: Support for both digital and handwritten submissions
 - **🤖 AI Auto-Grading**: Intelligent scoring using Google Gemini AI
 - **👁️ OCR Integration**: Text recognition for handwritten assignments
-- **📊 Grade Management**: View, edit, and reset submission scores
 - **⚡ Real-time Updates**: Live feedback and notifications
 
 ## 🛠️ Tech Stack
