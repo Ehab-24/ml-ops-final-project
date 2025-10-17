@@ -6,6 +6,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import UnauthenticatedRoute from "@/components/UnauthenticatedRoute";
 import SignupPage from "@/components/pages/SignupPage";
 import LoginPage from "@/components/pages/LoginPage";
+import LandingPage from "@/components/pages/LandingPage";
 import Page404 from "@/components/pages/Page404";
 import CreateAssignmentPage from "@/components/pages/CreateAssignmentPage";
 import CreateClassPage from "@/components/pages/CreateClass";
@@ -22,9 +23,17 @@ function App() {
         <Toaster />
         <BrowserRouter>
           <Routes>
+            {/* Landing page for unauthenticated users */}
+            <Route element={<UnauthenticatedRoute />}>
+              <Route path="/" element={<LandingPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/login" element={<LoginPage />} />
+            </Route>
+            
+            {/* Protected routes for authenticated users */}
             <Route element={<RootLayout />}>
               <Route element={<ProtectedRoute />}>
-                <Route path="/" element={<HomePage />} />
+                <Route path="/dashboard" element={<HomePage />} />
                 <Route
                   path="/classes/:classId/"
                   element={<ClassDetailPage />}
@@ -44,10 +53,6 @@ function App() {
               <Route element={<ProtectedRoute role="student" />}>
                 <Route path="/classes/join" element={<JoinClass />} />
               </Route>
-            </Route>
-            <Route element={<UnauthenticatedRoute />}>
-              <Route path="/signup" element={<SignupPage />} />
-              <Route path="/login" element={<LoginPage />} />
             </Route>
             <Route path="*" element={<Page404 />} />
           </Routes>

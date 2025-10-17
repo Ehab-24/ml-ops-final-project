@@ -41,7 +41,7 @@ export function Navbar() {
           <div className="ml-12 md:ml-0">
             {" "}
             {/* Add left margin on mobile to avoid overlap with sidebar button */}
-            <Link to="/" className="hover:opacity-80 transition-opacity">
+            <Link to="/dashboard" className="hover:opacity-80 transition-opacity">
               <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 dark:from-blue-400 dark:to-blue-600 bg-clip-text text-transparent">
                 ClassManager
               </h1>

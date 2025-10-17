@@ -61,7 +61,7 @@ export function Sidebar() {
         {/* Navigation */}
         <div className="space-y-2">
           <Link
-            to="/"
+            to="/dashboard"
             className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors text-blue-700 dark:text-blue-300 w-full"
             onClick={() => {
               if (window.innerWidth < 768) setIsOpen(false);
