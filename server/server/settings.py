@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -21,12 +22,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-vhaiwa%a=r28m#u3f^3ol(v6x%5b)-zzbd9wp0vg#-+=(ea6(a"
+SECRET_KEY = config('SECRET_KEY', default='')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')
 
 
 # Application definition
@@ -150,7 +151,7 @@ MEDIA_URL = "/media/"
 MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 
 # Models
-GEMINI_API_KEY = "AIzaSyBUiMTEUfqXv21vb-OVos-W92OpIRhtQ9M"
-GEMINI_MODEL_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent"
+GEMINI_API_KEY = config('GEMINI_API_KEY', default='AIzaSyBUi-W92OpIRhtQ9M')
+GEMINI_MODEL_URL = config('GEMINI_MODEL_URL', default='')
 #OCR_PREDICTION_URL="http://localhost:9000/2015-03-31/functions/function/invocations"
-OCR_PREDICTION_URL="https://zatxeedvkqbkgirog5ew4wshoe0neozq.lambda-url.ap-south-1.on.aws/"
+OCR_PREDICTION_URL=config('OCR_PREDICTION_URL', default='')

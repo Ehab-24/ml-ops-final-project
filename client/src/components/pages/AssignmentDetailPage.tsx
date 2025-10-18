@@ -57,6 +57,8 @@ export default function AssignmentDetailsPage() {
     null
   );
   const [scoreInputs, setScoreInputs] = useState<Record<number, string>>({});
+  const [autoCheckLoading, setAutoCheckLoading] = useState(false);
+  const [autoCheckError, setAutoCheckError] = useState<string | null>(null);
 
   const { auth } = useAuth();
 
@@ -142,12 +144,34 @@ export default function AssignmentDetailsPage() {
   };
 
   function handleAutoCheck() {
+    setAutoCheckLoading(true);
+    setAutoCheckError(null);
+    
     autoCheckAssignment(
       Number(assignmentId || "-1"),
       Number(classId || "-1")
     ).then((result) => {
-      if (result.ok) window.location.reload();
-      else toast.error(result.error);
+      if (result.ok) {
+        toast.success("Auto-check completed successfully!");
+        // Refresh submissions data
+        if (auth.role === "teacher" && assignmentId) {
+          getAssignmentSubmissions(Number(assignmentId)).then((submissionResult) => {
+            if (submissionResult.ok) {
+              setSubmissions(submissionResult.value);
+            }
+          });
+        }
+      } else {
+        const errorMessage = result.error || "Auto-check failed. Please try again.";
+        setAutoCheckError(errorMessage);
+        toast.error(errorMessage);
+      }
+    }).catch((error) => {
+      const errorMessage = "An unexpected error occurred during auto-checking. Please try again.";
+      setAutoCheckError(errorMessage);
+      toast.error(errorMessage);
+    }).finally(() => {
+      setAutoCheckLoading(false);
     });
   }
 
@@ -489,12 +513,30 @@ export default function AssignmentDetailsPage() {
                 </div>
                 <div className="flex flex-col sm:flex-row gap-2">
                   {new Date(assignment.deadline) < new Date() && (
-                    <Button
-                      onClick={handleAutoCheck}
-                      className="w-full sm:w-auto"
-                    >
-                      Auto Check
-                    </Button>
+                    <div className="w-full sm:w-auto">
+                      <Button
+                        onClick={handleAutoCheck}
+                        disabled={autoCheckLoading}
+                        className="w-full sm:w-auto"
+                      >
+                        {autoCheckLoading ? (
+                          <>
+                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                            Checking...
+                          </>
+                        ) : (
+                          "Auto Check"
+                        )}
+                      </Button>
+                      {autoCheckError && (
+                        <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                          <div className="flex items-center">
+                            <AlertCircle className="h-4 w-4 text-red-600 mr-2" />
+                            <p className="text-sm text-red-700">{autoCheckError}</p>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   )}
                   <Button
                     variant="outline"

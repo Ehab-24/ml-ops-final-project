@@ -8,14 +8,14 @@ export default function LoginPage() {
       {/* Left side - Login Form */}
       <div className="flex w-full lg:w-1/2 flex-col">
         <div className="flex justify-center pt-8 lg:justify-start lg:pl-8">
-          <div className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
             <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-800 rounded-lg flex items-center justify-center">
               <GraduationCap className="w-5 h-5 text-white" />
             </div>
             <span className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-blue-800 bg-clip-text text-transparent">
               ClassManager
             </span>
-          </div>
+          </Link>
         </div>
 
         <div className="flex-1 flex items-center justify-center px-6 lg:px-8">
